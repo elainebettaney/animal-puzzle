@@ -6,11 +6,9 @@ import copy
 import logging
 logger = logging.getLogger()
 logger.addHandler(logging.StreamHandler())
-logger.setLevel(logging.INFO)
 
 def load_data():
     df = pd.read_csv('bug_puzzle.csv')
-    #df['bug_end'] = df['bug'].str.cat(df['head'], sep='_')
 
     tiles = {}
     for id in df.tile_id.unique():
@@ -36,15 +34,6 @@ class Tile(object):
 
     def __str__(self):
         return str(self.id)
-
-    #def contains(self, bug, head):
-
-        #bug_end = '_'.join([bug, head])
-
-        #if bug_end in self.bug_ends:
-        #    return True
-        #else:
-        #    return False
 
     def match(self, condition):
         # Returns an anticlockwise list of bugs starting with condition if condition is met
@@ -109,7 +98,8 @@ class Path(object):
 
 class HexGrid(object):
     """
-    Axial hex grid
+    Axial hex grid representation.
+    See http://www.redblobgames.com/grids/hexagons/#coordinates
     """
     def __init__(self, size=2):
 
@@ -148,7 +138,6 @@ class HexGrid(object):
         return s
 
     def __deepcopy__(self, memo):
-        # I have no idea what I'm doing here
 
         cls = self.__class__
         result = cls.__new__(cls)
@@ -281,7 +270,6 @@ def place_tile(Grid, path, i, max_i, tile_ids, dTiles):
                 edges = [(node, n) for n in neighbours]
                 dEdges = {k:v for k, v in zip(edges, edge_bugs)}
 
-                #print new_grid
                 new_grid.place_tile(node, tile, dEdges)
                 logger.info(new_grid.print_path(path))
 
@@ -314,10 +302,25 @@ def run():
             break
 
     if success:
-        print new_grid
+        logger.info(new_grid)
     else:
-        print 'Failed to find a solution'
+        logger.error('Failed to find a solution')
 
 
 if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--v', help='Run in verbose mode', type=bool, default=False)
+    parser.add_argument('--d', help='Run in debug mode', type=bool, default=False)
+
+    args = parser.parse_args()
+
+    if args.d:
+        logger.setLevel(logging.DEBUG)
+    elif args.v:
+        logger.setLevel(logging.INFO)
+    else:
+        logger.setLevel(logging.ERROR)
+
     run()
