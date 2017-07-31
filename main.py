@@ -170,6 +170,12 @@ class HexGrid(object):
     def get_edge_val(self, edge):
         return self.edges[edge]
 
+    def get_ntiles(self):
+        """
+        Returns the number of tiles in the grid.
+        """
+        return len([n for n in self.nodes if self.nodes[n]])
+
     def _is_neighbour(self, x, y):
         # Given 2 co-ordinates, are they neighbours?
         if abs(x[0] - y[0]) <= 1 and abs(x[1] - y[1]) <= 1:
@@ -279,6 +285,8 @@ def place_tile(Grid, path, i, max_i, tile_ids, dTiles):
 
                 if success:
                     return True, new_grid
+    else:
+        return True, Grid
 
     logger.debug('i={}: Failed to find tile'.format(i))
     return False, None
@@ -302,7 +310,8 @@ def run():
             break
 
     if success:
-        logger.info(new_grid)
+        logger.info('Solution:\n{}'.format(str(new_grid)))
+        logger.info(new_grid.print_path(path))
     else:
         logger.error('Failed to find a solution')
 
